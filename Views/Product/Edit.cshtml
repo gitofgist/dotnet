@@ -1,0 +1,226 @@
+@model InventoryManagement.Interface.Product.Product
+@{
+    ViewData["Title"] = "Edit Product - " + Model.Name;
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h4>
+                        <i class="fas fa-edit"></i> Edit Product: @Model.Name
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="CreatedAt" />
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Name" class="form-label">Product Name *</label>
+                                    <input asp-for="Name" class="form-control" placeholder="e.g., Widget XYZ-123" />
+                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Brand" class="form-label">Brand</label>
+                                    <input asp-for="Brand" class="form-control" placeholder="e.g., Acme Corp" />
+                                    <span asp-validation-for="Brand" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Category" class="form-label">Category</label>
+                                    <input asp-for="Category" class="form-control" placeholder="e.g., Electronics, Hardware, Software" />
+                                    <span asp-validation-for="Category" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="Description" class="form-label">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="4" 
+                                      placeholder="Detailed description of the product, including specifications, features, etc."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group mb-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Update Product
+                            </button>
+                            <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Products
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Vendor Relationships Section -->
+            @if (Model.VendorProducts.Any())
+            {
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h5><i class="fas fa-truck"></i> Current Vendors (@Model.VendorProducts.Count)</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Vendor</th>
+                                        <th>Price</th>
+                                        <th>Unit</th>
+                                        <th>Lead Time</th>
+                                        <th>Min Order</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var vp in Model.VendorProducts.OrderBy(v => v.Vendor.Name))
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>@vp.Vendor.Name</strong>
+                                                @if (vp.IsPreferredVendor)
+                                                {
+                                                    <span class="badge bg-success ms-1">Preferred</span>
+                                                }
+                                            </td>
+                                            <td>$@vp.Price.ToString("N2")</td>
+                                            <td>@vp.Unit</td>
+                                            <td>@vp.LeadTimeDays days</td>
+                                            <td>@vp.MinOrderQuantity</td>
+                                            <td>
+                                                @if (vp.IsActive)
+                                                {
+                                                    <span class="badge bg-success">Active</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-danger">Inactive</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <a href="@Url.Action("Edit", "VendorProduct", new { id = vp.Id })" 
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
+            
+            <!-- Add Vendor Section -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-plus"></i> Add Vendor to Product</h5>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.AvailableVendors != null && ((List<InventoryManagement.Interface.Vendor.Vendor>)ViewBag.AvailableVendors).Any())
+                    {
+                        <form id="addVendorForm">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <select id="vendorSelect" class="form-control" required>
+                                        <option value="">Select Vendor</option>
+                                        @foreach (var vendor in (List<InventoryManagement.Interface.Vendor.Vendor>)ViewBag.AvailableVendors)
+                                        {
+                                            <option value="@vendor.Id">@vendor.Name</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <input type="number" id="priceInput" class="form-control" placeholder="Price" step="0.01" min="0" required />
+                                </div>
+                                <div class="col-md-2">
+                                    <select id="unitSelect" class="form-control" required>
+                                        <option value="">Unit</option>
+                                        <option value="piece">piece</option>
+                                        <option value="box">box</option>
+                                        <option value="pack">pack</option>
+                                        <option value="kilogram">kilogram</option>
+                                        <option value="liter">liter</option>
+                                        <option value="meter">meter</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <input type="number" id="leadTimeInput" class="form-control" placeholder="Lead Time (days)" min="0" value="7" required />
+                                </div>
+                                <div class="col-md-3">
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-plus"></i> Add Vendor
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <div id="addVendorMessage" class="mt-2"></div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            All available vendors are already linked to this product, or no vendors exist.
+                            <a href="@Url.Action("Create", "Vendor")" class="alert-link">Add a new vendor</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        document.getElementById('addVendorForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const vendorId = document.getElementById('vendorSelect').value;
+            const price = document.getElementById('priceInput').value;
+            const unit = document.getElementById('unitSelect').value;
+            const leadTime = document.getElementById('leadTimeInput').value;
+            const messageDiv = document.getElementById('addVendorMessage');
+            
+            if (!vendorId || !price || !unit || !leadTime) {
+                messageDiv.innerHTML = '<div class="alert alert-warning">Please fill in all fields.</div>';
+                return;
+            }
+            
+            fetch('@Url.Action("AddVendorToProduct", "VendorProduct")', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: `productId=@Model.Id&vendorId=${vendorId}&price=${price}&unit=${unit}&leadTimeDays=${leadTime}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    messageDiv.innerHTML = '<div class="alert alert-success">' + data.message + '</div>';
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    messageDiv.innerHTML = '<div class="alert alert-danger">' + data.message + '</div>';
+                }
+            })
+            .catch(error => {
+                messageDiv.innerHTML = '<div class="alert alert-danger">Error adding vendor.</div>';
+            });
+        });
+    </script>
+}
