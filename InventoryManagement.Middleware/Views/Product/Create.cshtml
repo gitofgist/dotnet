@@ -1,0 +1,78 @@
+@model InventoryManagement.Service.Models.Product
+@{
+    ViewData["Title"] = "Add New Product";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>
+                        <i class="fas fa-box"></i> Add New Product
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Name" class="form-label">Product Name *</label>
+                                    <input asp-for="Name" class="form-control" placeholder="e.g., Widget XYZ-123" />
+                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Brand" class="form-label">Brand</label>
+                                    <input asp-for="Brand" class="form-control" placeholder="e.g., Acme Corp" />
+                                    <span asp-validation-for="Brand" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Category" class="form-label">Category</label>
+                                    <input asp-for="Category" class="form-control" placeholder="e.g., Electronics, Hardware, Software" />
+                                    <span asp-validation-for="Category" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="Description" class="form-label">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="4" 
+                                      placeholder="Detailed description of the product, including specifications, features, etc."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Save Product
+                            </button>
+                            <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h6 class="card-title"><i class="fas fa-info-circle text-info"></i> Next Steps</h6>
+                    <p class="card-text text-muted">
+                        After creating the product, you can link it to vendors with pricing information 
+                        in the <a href="@Url.Action("Index", "VendorProduct")" class="text-decoration-none">Vendor-Product Relationships</a> section.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

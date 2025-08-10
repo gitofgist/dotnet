@@ -1,0 +1,154 @@
+@model InventoryManagement.Service.Models.VendorProduct
+@{
+    ViewData["Title"] = "Edit Vendor-Product Relationship";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4>
+                        <i class="fas fa-edit"></i> Edit Vendor-Product Relationship
+                    </h4>
+                    <p class="mb-0 text-muted">
+                        <strong>@Model.Vendor.Name</strong> → <strong>@Model.Product.Name</strong>
+                    </p>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Edit" method="post">
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="VendorId" />
+                        <input type="hidden" asp-for="ProductId" />
+                        <input type="hidden" asp-for="CreatedAt" />
+                        
+                        <!-- Display readonly vendor and product info -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Vendor</label>
+                                    <input type="text" class="form-control" value="@Model.Vendor.Name" readonly />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Product</label>
+                                    <input type="text" class="form-control" value="@Model.Product.Name" readonly />
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Price" class="form-label">Price *</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">$</span>
+                                        <input asp-for="Price" type="number" step="0.01" min="0" class="form-control" />
+                                    </div>
+                                    <span asp-validation-for="Price" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Unit" class="form-label">Unit *</label>
+                                    <select asp-for="Unit" class="form-control" required>
+                                        <option value="">Select Unit</option>
+                                        @if (ViewBag.Units != null)
+                                        {
+                                            @foreach (var unit in ViewBag.Units as List<string>)
+                                            {
+                                                <option value="@unit" selected="@(unit == Model.Unit)">@unit</option>
+                                            }
+                                        }
+                                    </select>
+                                    <span asp-validation-for="Unit" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group mb-3">
+                                    <label asp-for="LeadTimeDays" class="form-label">Lead Time (Days)</label>
+                                    <input asp-for="LeadTimeDays" type="number" min="0" class="form-control" />
+                                    <span asp-validation-for="LeadTimeDays" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="VendorProductCode" class="form-label">Vendor Product Code</label>
+                                    <input asp-for="VendorProductCode" class="form-control" placeholder="Vendor's internal product code" />
+                                    <span asp-validation-for="VendorProductCode" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="MinOrderQuantity" class="form-label">Minimum Order Quantity</label>
+                                    <input asp-for="MinOrderQuantity" type="number" step="0.01" min="0" class="form-control" />
+                                    <span asp-validation-for="MinOrderQuantity" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input asp-for="IsPreferredVendor" class="form-check-input" type="checkbox" />
+                                    <label asp-for="IsPreferredVendor" class="form-check-label">
+                                        Preferred Vendor for this Product
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                                    <label asp-for="IsActive" class="form-check-label">
+                                        Active Relationship
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Update Relationship
+                            </button>
+                            <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Relationships
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Relationship History -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h6><i class="fas fa-history"></i> Relationship History</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Created:</strong> @Model.CreatedAt.ToString("MMMM dd, yyyy 'at' HH:mm")</p>
+                        </div>
+                        <div class="col-md-6">
+                            @if (Model.LastUpdated.HasValue)
+                            {
+                                <p><strong>Last Updated:</strong> @Model.LastUpdated.Value.ToString("MMMM dd, yyyy 'at' HH:mm")</p>
+                            }
+                            else
+                            {
+                                <p><strong>Last Updated:</strong> <span class="text-muted">Never</span></p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
